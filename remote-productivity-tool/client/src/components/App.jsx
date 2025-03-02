@@ -1,24 +1,47 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import Login from './Login';
+import Signup from './Signup';
+import Dashboard from './Dashboard';;
 
 function App() {
-  const [message, setMessage] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
+  const [showSignup, setShowSignup] = useState(false);
 
-  const fetchMessage = async () => {
-    try {
-      const res = await axios.get('/api/test');
-      setMessage(res.data);
-    } catch (err) {
-      console.error('Error fetching message:', err);
-      setMessage('Failed to connect to backend');
-    }
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
   };
 
   return (
     <div>
       <h1>Remote Productivity Tool</h1>
-      <button onClick={fetchMessage}>Test Backend</button>
-      <p>{message}</p>
+
+      {isAuthenticated ? (
+        <>
+          <Dashboard />
+          <button onClick={handleLogout}>Log out</button>
+        </>
+      ) : (
+        <>
+          {showSignup ? (
+            <>
+              <Signup />
+              <p>
+                Already have an account?{' '}
+                <button onClick={() => setShowSignup(false)}>Log in</button>
+              </p>
+            </>
+          ) : (
+            <>
+              <Login setIsAuthenticated={setIsAuthenticated} />
+              <p>
+                Don’t have an account?{' '}
+                <button onClick={() => setShowSignup(true)}>Sign up</button>
+              </p>
+            </>
+          )}
+        </>
+      )}
     </div>
   );
 }
